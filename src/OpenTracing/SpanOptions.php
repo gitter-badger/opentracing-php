@@ -18,7 +18,7 @@ final class SpanOptions
     private $tags = [];
 
     /**
-     * @var int|float|\DateTime
+     * @var int|float|\DateTimeInterface
      */
     private $startTime;
 
@@ -133,7 +133,7 @@ final class SpanOptions
     }
 
     /**
-     * @return int|float|\DateTime if returning float or int it should represent
+     * @return int|float|\DateTimeInterface if returning float or int it should represent
      * the timestamp (including as many decimal places as you need)
      */
     public function getStartTime()

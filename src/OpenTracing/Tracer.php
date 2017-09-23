@@ -26,13 +26,65 @@ interface Tracer
     const FORMAT_HTTP_HEADERS = 3;
 
     /**
+     * @deprecated use either startActiveSpan or startManualSpan instead.
+     * As implementor consider this as a backward compatibility alias for
+     * startActiveSpan
+     *
+     * @param string $operationName
+     * @param array|SpanOptions $options
+     * @return Span
+     */
+    public function startSpan($operationName, $options = []);
+
+    /**
+     * Starts and returns a new `Span` representing a unit of work.
+     *
+     * This method differs from `startManualSpan` because it uses in-process
+     * context propagation to keep track of the current active `Span` (if
+     * available).
+     *
+     * Starting a root `Span` with no casual references and a child `Span`
+     * in a different function, is possible without passing the parent
+     * reference around:
+     *
+     *  function handleRequest(Request $request, $userId)
+     *  {
+     *      $rootSpan = $this->tracer->startActiveSpan('request.handler');
+     *      $user = $this->repository->getUser($userId);
+     *  }
+     *
+     *  function getUser($userId)
+     *  {
+     *      // `$childSpan` has `$rootSpan` as parent.
+     *      $childSpan = $this->tracer->startActiveSpan('db.query');
+     *  }
+     *
      * @param string $operationName
      * @param array|SpanOptions $options
      * @return Span
      * @throws InvalidSpanOption for invalid option
      * @throws InvalidReferencesSet for invalid references set
      */
-    public function startSpan($operationName, $options);
+    public function startActiveSpan($operationName, $options = []);
+
+    /**
+     * @param string $operationName
+     * @param array|SpanOptions $options
+     * @return Span
+     * @throws InvalidSpanOption for invalid option
+     * @throws InvalidReferencesSet for invalid references set
+     */
+    public function startManualSpan($operationName, $options = []);
+
+    /**
+     * @return ActiveSpanSource
+     */
+    public function getActiveSpanSource();
+
+    /**
+     * @return Span
+     */
+    public function getActiveSpan();
 
     /**
      * @param SpanContext $spanContext
